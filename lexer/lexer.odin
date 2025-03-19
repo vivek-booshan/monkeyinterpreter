@@ -78,7 +78,12 @@ createToken :: proc(l: ^Lexer) -> Token {
 	// sub switches or convert to token table 
 	switch r {
 	case '=':
-		tok = newToken(TokenType.ASSIGN, "=")
+		if peek(l) == '=' {
+			tok = newToken(TokenType.EQ, "==")
+			l.idx += 1
+		} else {
+			tok = newToken(TokenType.ASSIGN, "=")
+		}
 	case ';':
 		tok = newToken(TokenType.SEMICOLON, ";")
 	case '(':
@@ -96,15 +101,30 @@ createToken :: proc(l: ^Lexer) -> Token {
 	case '/':
 		tok = newToken(TokenType.FSLASH, "/")
 	case '<':
-		tok = newToken(TokenType.LT, "<")
+		if peek(l) == '=' {
+			tok = newToken(TokenType.LEQ, "<=")
+			l.idx += 1
+		} else {
+			tok = newToken(TokenType.LT, "<")
+		}
 	case '>':
-		tok = newToken(TokenType.GT, ">")
+		if peek(l) == '=' {
+			tok = newToken(TokenType.GEQ, ">=")
+			l.idx += 1
+		} else {
+			tok = newToken(TokenType.GT, ">")
+		}
 	case '{':
 		tok = newToken(TokenType.LBRACE, "{")
 	case '}':
 		tok = newToken(TokenType.RBRACE, "}")
 	case '!':
-		tok = newToken(TokenType.BANG, "!")
+		if peek(l) == '=' {
+			tok = newToken(TokenType.NEQ, "!=")
+			l.idx += 1
+		} else {
+			tok = newToken(TokenType.BANG, "!")
+		}
 	case 'a' ..= 'z':
 		switch word := getIdent(l); word {
 		case "let":
@@ -133,7 +153,6 @@ createToken :: proc(l: ^Lexer) -> Token {
 	return tok
 }
 
-@(private = "file")
 getIdent :: proc(l: ^Lexer) -> string {
 	offset := 0
 	for is_alpha(l.input[l.idx + offset]) {
@@ -143,7 +162,6 @@ getIdent :: proc(l: ^Lexer) -> string {
 	return l.input[l.idx - offset + 1:l.idx + 1]
 }
 
-@(private = "file")
 getNum :: proc(l: ^Lexer) -> string {
 	offset := 0
 	for is_digit(l.input[l.idx + offset]) {
@@ -153,17 +171,17 @@ getNum :: proc(l: ^Lexer) -> string {
 	return l.input[l.idx - offset + 1:l.idx + 1]
 }
 
-@(private = "file")
+peek :: proc(l: ^Lexer) -> u8 {
+	return l.input[l.idx + 1]
+}
 is_alpha :: proc(b: u8) -> bool {
 	return unicode.is_alpha(cast(rune)b)
 }
 
-@(private = "file")
 is_digit :: proc(b: u8) -> bool {
 	return unicode.is_digit(cast(rune)b)
 }
 
-@(private = "file")
 is_whitespace :: proc(b: u8) -> bool {
 	return unicode.is_white_space(cast(rune)b)
 }
