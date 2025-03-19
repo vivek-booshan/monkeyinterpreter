@@ -5,26 +5,45 @@ import "core:unicode"
 
 Token :: struct {
 	Type:    TokenType,
-	// Literal: []u8,
 	Literal: string,
 }
-
 
 TokenType :: enum {
 	ILLEGAL,
 	EOF,
 	IDENT,
 	INT,
-	ASSIGN,
-	PLUS,
-	COMMA,
-	SEMICOLON,
-	LPAREN,
-	RPAREN,
-	LBRACE,
-	RBRACE,
-	FUNCTION,
-	LET,
+
+	// One Character
+	ASSIGN, // =
+	PLUS, // +
+	COMMA, // ,
+	SEMICOLON, // ;
+	LPAREN, // (
+	RPAREN, // )
+	LBRACE, // {
+	RBRACE, // }
+	BANG, // !
+	MINUS, // -
+	FSLASH, // /
+	ASTERISK, // *
+	LT, // <
+	GT, // >
+
+	// Two Character
+	EQ, // == 
+	NEQ, // !=
+	LEQ, // <=
+	GEQ, // >=
+
+	// Keyword
+	FUNCTION, // fn
+	LET, // let
+	IF, // if
+	ELSE, // else
+	TRUE, // true
+	FALSE, // false
+	RETURN, // return
 }
 
 Lexer :: struct {
@@ -55,6 +74,8 @@ createToken :: proc(l: ^Lexer) -> Token {
 	tok: Token
 
 	r := l.input[l.idx]
+	// TODO: switch case is O(N) in worst case, should either make
+	// sub switches or convert to token table 
 	switch r {
 	case '=':
 		tok = newToken(TokenType.ASSIGN, "=")
@@ -68,24 +89,46 @@ createToken :: proc(l: ^Lexer) -> Token {
 		tok = newToken(TokenType.COMMA, ",")
 	case '+':
 		tok = newToken(TokenType.PLUS, "+")
+	case '-':
+		tok = newToken(TokenType.MINUS, "-")
+	case '*':
+		tok = newToken(TokenType.ASTERISK, "*")
+	case '/':
+		tok = newToken(TokenType.FSLASH, "/")
+	case '<':
+		tok = newToken(TokenType.LT, "*")
+	case '>':
+		tok = newToken(TokenType.GT, "/")
 	case '{':
 		tok = newToken(TokenType.LBRACE, "{")
 	case '}':
 		tok = newToken(TokenType.RBRACE, "}")
-	case 0:
-		tok = newToken(TokenType.EOF)
+	case '!':
+		tok = newToken(TokenType.BANG, "!")
 	case 'a' ..= 'z':
 		switch word := getIdent(l); word {
 		case "let":
 			tok = newToken(TokenType.LET, "let")
 		case "fn":
 			tok = newToken(TokenType.FUNCTION, "fn")
+		case "if":
+			tok = newToken(TokenType.IF, "if")
+		case "else":
+			tok = newToken(TokenType.ELSE, "else")
+		case "return":
+			tok = newToken(TokenType.RETURN, "return")
+		case "true":
+			tok = newToken(TokenType.TRUE, "true")
+		case "false":
+			tok = newToken(TokenType.FALSE, "false")
 		case:
 			tok = newToken(TokenType.IDENT, word)
 		}
 	case '0' ..= '9':
 		num := getNum(l)
 		tok = newToken(TokenType.INT, num)
+	case 0:
+		tok = newToken(TokenType.EOF)
 	}
 	return tok
 }
