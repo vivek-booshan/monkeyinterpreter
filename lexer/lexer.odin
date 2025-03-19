@@ -133,6 +133,7 @@ createToken :: proc(l: ^Lexer) -> Token {
 	return tok
 }
 
+@(private = "file")
 getIdent :: proc(l: ^Lexer) -> string {
 	offset := 0
 	for is_alpha(l.input[l.idx + offset]) {
@@ -142,6 +143,7 @@ getIdent :: proc(l: ^Lexer) -> string {
 	return l.input[l.idx - offset + 1:l.idx + 1]
 }
 
+@(private = "file")
 getNum :: proc(l: ^Lexer) -> string {
 	offset := 0
 	for is_digit(l.input[l.idx + offset]) {
@@ -151,14 +153,17 @@ getNum :: proc(l: ^Lexer) -> string {
 	return l.input[l.idx - offset + 1:l.idx + 1]
 }
 
+@(private = "file")
 is_alpha :: proc(b: u8) -> bool {
 	return unicode.is_alpha(cast(rune)b)
 }
 
+@(private = "file")
 is_digit :: proc(b: u8) -> bool {
 	return unicode.is_digit(cast(rune)b)
 }
 
+@(private = "file")
 is_whitespace :: proc(b: u8) -> bool {
 	return unicode.is_white_space(cast(rune)b)
 }
