@@ -1,65 +1,76 @@
 package lexer
 
-import "../token"
-import "core:strings"
+Token :: struct {
+	Type:    TokenType,
+	// Literal: []u8,
+	Literal: rune,
+}
+
+
+TokenType :: enum {
+	ILLEGAL,
+	EOF,
+	IDENT,
+	INT,
+	ASSIGN,
+	PLUS,
+	COMMA,
+	SEMICOLON,
+	LPAREN,
+	RPAREN,
+	LBRACE,
+	RBRACE,
+	FUNCTION,
+	LET,
+}
+
 Lexer :: struct {
 	input:        string,
 	position:     int,
 	readPosition: int,
-	ch:           rune,
+	idx:          int, // current rune index
 }
 
-init :: proc(input: string) -> ^Lexer {
-	lexer := &Lexer{input = input}
-	readRune(lexer)
-	return lexer
+init :: proc(l: ^Lexer, input: string) {
+	l.input = input
 }
 
-destroy :: proc(l: ^Lexer) {
-	free(l)
-	return
+newToken :: proc(tokenType: TokenType, r: rune) -> Token {
+	return Token{Type = tokenType, Literal = r}
 }
 
-readRune :: proc(l: ^Lexer) {
-	if l.readPosition >= len(l.input) {
-		l.ch = 0
-	} else {
-		l.ch = cast(rune)l.input[l.readPosition]
-	}
-	l.position = l.readPosition
-	l.readPosition += 1
-}
+createTokenFromRune :: proc(r: rune) -> Token {
+	tok: Token
 
-nextToken :: proc(l: ^Lexer) -> token.Token {
-	tok: token.Token
-
-	switch l.ch {
+	switch r {
 	case '=':
-		tok = newToken(token.TokenType.ASSIGN, l.ch)
+		tok = newToken(TokenType.ASSIGN, r)
 	case ';':
-		tok = newToken(token.TokenType.SEMICOLON, l.ch)
+		tok = newToken(TokenType.SEMICOLON, r)
 	case '(':
-		tok = newToken(token.TokenType.LPAREN, l.ch)
+		tok = newToken(TokenType.LPAREN, r)
 	case ')':
-		tok = newToken(token.TokenType.RPAREN, l.ch)
+		tok = newToken(TokenType.RPAREN, r)
 	case ',':
-		tok = newToken(token.TokenType.COMMA, l.ch)
+		tok = newToken(TokenType.COMMA, r)
 	case '+':
-		tok = newToken(token.TokenType.PLUS, l.ch)
+		tok = newToken(TokenType.PLUS, r)
 	case '{':
-		tok = newToken(token.TokenType.LBRACE, l.ch)
+		tok = newToken(TokenType.LBRACE, r)
 	case '}':
-		tok = newToken(token.TokenType.RBRACE, l.ch)
+		tok = newToken(TokenType.RBRACE, r)
 	case 0:
-		tok.Literal = ""
-		tok.Type = token.TokenType.EOF
+		tok = newToken(TokenType.EOF, r)
 	}
-
-	readRune(l)
 	return tok
 }
 
-newToken :: proc(tokenType: token.TokenType, ch: rune) -> token.Token {
-	return token.Token{tokenType, cast(string)ch}
+nextToken :: proc(l: ^Lexer) -> Token {
+	if l.idx >= len(l.input) {
+		return createTokenFromRune(0)
+	}
+	tok := createTokenFromRune(rune(l.input[l.idx]))
+	l.idx += 1
+	return tok
 }
 
