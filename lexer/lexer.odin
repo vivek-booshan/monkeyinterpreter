@@ -96,9 +96,9 @@ createToken :: proc(l: ^Lexer) -> Token {
 	case '/':
 		tok = newToken(TokenType.FSLASH, "/")
 	case '<':
-		tok = newToken(TokenType.LT, "*")
+		tok = newToken(TokenType.LT, "<")
 	case '>':
-		tok = newToken(TokenType.GT, "/")
+		tok = newToken(TokenType.GT, ">")
 	case '{':
 		tok = newToken(TokenType.LBRACE, "{")
 	case '}':
