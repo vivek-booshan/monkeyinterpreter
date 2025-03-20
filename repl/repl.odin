@@ -22,10 +22,10 @@ repl :: proc() {
 		l: lexer.Lexer
 		lexer.init(&l, line)
 
-		for tok := lexer.nextToken(&l);
-		    tok.Type != lexer.TokenType.EOF;
-		    tok = lexer.nextToken(&l) {
-			fmt.printfln("token: %q, %s", tok.Type, tok.Literal)
+		tok: lexer.Token
+		for lexer.nextToken(&l, &tok); tok.Type != lexer.TokenType.EOF; {
+			fmt.printfln("%v", tok)
+			lexer.nextToken(&l, &tok)
 		}
 	}
 }
