@@ -186,7 +186,7 @@ is_whitespace :: proc(b: u8) -> bool {
 	return unicode.is_white_space(cast(rune)b)
 }
 
-nextToken :: proc(l: ^Lexer, tok: ^Token) {
+nextTokenRef :: proc(l: ^Lexer, tok: ^Token) {
 	if l.idx >= len(l.input) {
 		tok^ = newToken(TokenType.EOF)
 		return
@@ -196,5 +196,16 @@ nextToken :: proc(l: ^Lexer, tok: ^Token) {
 	}
 	tok^ = createToken(l)
 	l.idx += 1
+}
+
+nextTokenVal :: proc(l: ^Lexer) -> Token {
+	tok: Token
+	nextTokenRef(l, &tok)
+	return tok
+}
+
+nextToken :: proc {
+	nextTokenRef,
+	nextTokenVal,
 }
 
